@@ -1,0 +1,14 @@
+<config>
+	<ipAddr>192.168.0.1</ipAddr>
+	<macStart>FFFFFFFFFFFF</macStart>
+	<macEnd>FFFFFFFFFFFF</macEnd>
+	<macInter>0</macInter>
+	<macCurrent>FFFFFFFFFFFF</macCurrent>
+
+	<sn>
+		<snStart>FFFFFFFFFFFF</snStart>
+		<snEnd>FFFFFFFFFFFF</snEnd>
+		<snInter>0</snInter>
+		<snCurrent>FFFFFFFFFFFF</snCurrent>	
+	</sn>
+</config>
