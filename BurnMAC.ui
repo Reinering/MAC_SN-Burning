@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>658</width>
-    <height>381</height>
+    <width>640</width>
+    <height>382</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -138,6 +138,9 @@
             <property name="text">
              <string/>
             </property>
+            <property name="readOnly">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -172,6 +175,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_macStart">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="font">
              <font>
               <family>微软雅黑</family>
@@ -180,6 +186,9 @@
             </property>
             <property name="text">
              <string/>
+            </property>
+            <property name="readOnly">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -215,6 +224,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_macEnd">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="font">
              <font>
               <family>微软雅黑</family>
@@ -223,6 +235,9 @@
             </property>
             <property name="text">
              <string/>
+            </property>
+            <property name="readOnly">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -277,6 +292,9 @@
             <property name="text">
              <string/>
             </property>
+            <property name="readOnly">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -311,6 +329,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_SNStart">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="font">
              <font>
               <family>微软雅黑</family>
@@ -320,7 +341,23 @@
             <property name="text">
              <string/>
             </property>
+            <property name="readOnly">
+             <bool>false</bool>
+            </property>
            </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_12">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
@@ -341,6 +378,9 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_SNEnd">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="font">
              <font>
               <family>微软雅黑</family>
@@ -350,7 +390,23 @@
             <property name="text">
              <string/>
             </property>
+            <property name="readOnly">
+             <bool>false</bool>
+            </property>
            </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_13">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
@@ -389,6 +445,9 @@
             </property>
             <property name="text">
              <string/>
+            </property>
+            <property name="readOnly">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -480,6 +539,19 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="pushButton_modify">
+            <property name="font">
+             <font>
+              <family>微软雅黑</family>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>编辑</string>
+            </property>
+           </widget>
+          </item>
           <item>
            <spacer name="horizontalSpacer_5">
             <property name="orientation">
@@ -577,6 +649,9 @@
             <property name="text">
              <string/>
             </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
@@ -620,7 +695,23 @@
             <property name="text">
              <string/>
             </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
            </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_14">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
