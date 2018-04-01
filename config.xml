@@ -1,14 +1,21 @@
-<config>
-	<ipAddr>192.168.0.1</ipAddr>
-	<macStart>FFFFFFFFFFFF</macStart>
-	<macEnd>FFFFFFFFFFFF</macEnd>
-	<macInter>0</macInter>
-	<macCurrent>FFFFFFFFFFFF</macCurrent>
+<?xml version="1.0" encoding="utf-8"?><config>					
+  
+	<ipAddr>192.168.0.1</ipAddr>				
 
-	<sn>
-		<snStart>FFFFFFFFFFFF</snStart>
-		<snEnd>FFFFFFFFFFFF</snEnd>
-		<snInter>0</snInter>
-		<snCurrent>FFFFFFFFFFFF</snCurrent>	
-	</sn>
+	<macStart>B8BA680F0000</macStart>					
+
+	<macEnd>B8BA680FFFFF</macEnd>					
+
+	<macInter>0</macInter>					
+
+	<macCurrent>B8BA680F0000</macCurrent>					
+
+	<snStart>B8BA6800000000000</snStart>						
+
+	<snEnd>B8BA680FFFFFFFFFF</snEnd>						
+
+	<snInter>0</snInter>						
+
+	<snCurrent>B8BA6800000000000</snCurrent>						
+
 </config>
