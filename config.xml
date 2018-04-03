@@ -6,16 +6,16 @@
 
 	<macEnd>B8BA680FFFFF</macEnd>					
 
-	<macInter>0</macInter>					
+	<macInter>1</macInter>					
 
-	<macCurrent>B8BA680F0000</macCurrent>					
+	<macCurrent>B8BA680F0005</macCurrent>					
 
-	<snStart>B8BA6800000000000</snStart>						
+	<snStart>B8BA680F0000</snStart>						
 
-	<snEnd>B8BA680FFFFFFFFFF</snEnd>						
+	<snEnd>B8BA680FFFFF</snEnd>						
 
-	<snInter>0</snInter>						
+	<snInter>1</snInter>						
 
-	<snCurrent>B8BA6800000000000</snCurrent>						
+	<snCurrent>B8BA680F0005</snCurrent>						
 
 </config>

@@ -11,7 +11,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(640, 382)
+        MainWindow.resize(631, 381)
+        MainWindow.setMinimumSize(QtCore.QSize(0, 0))
+        MainWindow.setMaximumSize(QtCore.QSize(631, 381))
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralWidget)
@@ -145,6 +147,7 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         self.lineEdit_macInterval.setFont(font)
         self.lineEdit_macInterval.setText("")
+        self.lineEdit_macInterval.setAlignment(QtCore.Qt.AlignCenter)
         self.lineEdit_macInterval.setReadOnly(False)
         self.lineEdit_macInterval.setObjectName("lineEdit_macInterval")
         self.horizontalLayout_5.addWidget(self.lineEdit_macInterval)
@@ -215,6 +218,7 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         self.lineEdit_SNInterval.setFont(font)
         self.lineEdit_SNInterval.setText("")
+        self.lineEdit_SNInterval.setAlignment(QtCore.Qt.AlignCenter)
         self.lineEdit_SNInterval.setReadOnly(False)
         self.lineEdit_SNInterval.setObjectName("lineEdit_SNInterval")
         self.horizontalLayout_3.addWidget(self.lineEdit_SNInterval)

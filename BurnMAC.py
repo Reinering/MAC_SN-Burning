@@ -37,6 +37,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ipAddr = ""
         self.macBool= True
         self.snBool = True
+        self.sucBool = False
 
         self.parseConfXML()                             #UI界面数据初始化
 
@@ -110,13 +111,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         f = codecs.open("config.xml", "w+", "utf-8")
         doc.writexml(f, addindent="", newl='', encoding="utf-8")        #格式控制 缩进-换行-编码
         f.close()
+    def writeConfXMLSN_MAC(self):
+        doc = xml.dom.minidom.parse("config.xml")
+        root = doc.documentElement
+        data = self.macPro
+        self.set_xmlData(root, "macCurrent", data)
+        data = self.snPro
+        self.set_xmlData(root, "snCurrent", data)
+        f = codecs.open("config.xml", "w+", "utf-8")
+        doc.writexml(f, addindent="", newl='', encoding="utf-8")  # 格式控制 缩进-换行-编码
+        f.close()
 
     def macCal(self):
-        mac_StartDec = self.hexCimDec(self.lineEdit_macStart.text())
-        mac_EndDec = self.hexCimDec(self.lineEdit_macEnd.text())
-        mac_CurDec = self.hexCimDec(self.macPro)
-        mac_Inter = self.lineEdit_macInterval.text()
+        mac_StartDec = int(self.hexCimDec(self.lineEdit_macStart.text()))
+        mac_EndDec = int(self.hexCimDec(self.lineEdit_macEnd.text()))
+        mac_CurDec = int(self.hexCimDec(self.macPro))
+        mac_Inter = int(self.lineEdit_macInterval.text())
         mac_CurDec = mac_CurDec + mac_Inter
+        print("mac_CurDec:", mac_CurDec)
         if mac_CurDec >= mac_StartDec and mac_CurDec <= mac_EndDec:
             self.macCurrent = self.decCimHex(mac_CurDec)
             self.macBool = True
@@ -125,15 +137,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.lineEdit_macCurrent.clear()
             self.macBool = False
-        print(mac_CurDec)
-
+        print("新生成macPro",self.macPro)
     def snCal(self):
-        sn_StartDec = self.hexCimDec(self.lineEdit_SNStart.text())
-        sn_EndDec = self.hexCimDec(self.lineEdit_SNEnd.text())
-        sn_CurDec = self.hexCimDec(self.snPro)
-        sn_Inter = self.lineEdit_SNInterval.text()
 
+        sn_StartDec = int(self.hexCimDec(self.lineEdit_SNStart.text()))
+        sn_EndDec = int(self.hexCimDec(self.lineEdit_SNEnd.text()))
+        sn_CurDec = int(self.hexCimDec(self.snPro))
+        sn_Inter = int(self.lineEdit_SNInterval.text())
         sn_CurDec = sn_CurDec + sn_Inter
+        print("sn_CurDec:", sn_CurDec)
         if sn_CurDec >= sn_StartDec and sn_CurDec <= sn_EndDec:
             self.snCurrent = self.decCimHex(sn_CurDec)
             self.snBool = True
@@ -142,16 +154,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.lineEdit_SNCurrent.clear()
             self.snBool = False
-        print(sn_CurDec)
-
+        print("新生成snPro", self.snPro)
     def hexCimDec(self, hexStr):
-        print("hexStr:", hexStr)
+        # print("hexStr:", hexStr)
         return str(int(hexStr.upper(), 16))
-
     def decCimHex(self, decStr):
-        print("decStr:", decStr)
-        return  str(hex(decStr))
+        # print("decStr:", decStr)
+        return  str(hex(decStr))[2:].upper()
 
+    def createSN_MAC(self):
+        if self.sucBool and self.proMode == 1:
+            print("self.sucBool", self.sucBool)
+            self.macCal()
+            self.snCal()
+            self.writeConfXMLSN_MAC()
+            self.logQueue.put("MAC/SN已准备完成")
+        elif self.sucBool and self.proMode == 3:
+            print("self.sucBool", self.sucBool)
+            self.lineEdit_SNInterval.clear()
+            self.lineEdit_macCurrent.clear()
+        else:
+            print("烧写失败，不比重新生成新mac和sn")
+        self.sucBool = False
+
+
+    """                    以下全部为槽函数                             """
 
     @pyqtSlot(str)
     def on_comboBox_proMode_currentTextChanged(self, p0):
@@ -240,12 +267,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.snBool and self.macBool:
             self.pushButton_start.setEnabled(False)
             self.proTh = ProThread(self.proMode, ip, self.macPro, self.snPro, self.logQueue)
-            self.proTh.signal.connect(self.on_pushButton_start_enable)
-            self.tbTh = TBThread(self.logQueue, self.textBrowser)
             self.proTh.start()
+            self.proTh.signal_to_startButton.connect(self.on_pushButton_start_enable)
+            self.proTh.signal_to_sucBool.connect(self.on_suc_Bool_change)
+
+            # textBrowser 打印
+            self.tbTh = TBThread(self.logQueue, self.textBrowser)
             self.tbTh.start()
-            # self.macCal()
-            # self.snCal()
         elif self.snBool:
             self.textBrowser.append("SN地址已超出使用完毕，请重新设置新号段")
         elif self.macBool:
@@ -256,12 +284,32 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def on_pushButton_start_enable(self, checked):
         self.pushButton_start.setEnabled(True)
 
+    def on_suc_Bool_change(self, checked):
+        self.sucBool = checked
+        self.createSN_MAC()
+
     @pyqtSlot()
     def on_pushButton_stop_clicked(self):
         self.pushButton_start.setEnabled(True)
 
+
+    # 手动模式下，烧写MAC手动修改后，自动将修改后的MAC，赋值到macPro上
+    @pyqtSlot(str)
+    def on_lineEdit_macCurrent_textEdited(self, p0):
+        if p0 is not None and p0 != "":
+            self.macPro = p0
+            print("macPro被修改：", self.macPro)
+    # 手动模式下，烧写SN手动修改后，自动将修改后的SN, 赋值到snPro上
+    @pyqtSlot(str)
+    def on_lineEdit_SNCurrent_textEdited(self, p0):
+        if p0 is not None and p0 != "":
+            self.snPro = p0
+            print("snPro被修改：", self.snPro)
+
+
 class ProThread(QtCore.QThread):
-    signal = QtCore.pyqtSignal(bool)
+    signal_to_startButton = QtCore.pyqtSignal(bool)
+    signal_to_sucBool =  QtCore.pyqtSignal(bool)
     def __init__(self, proMode, ipAddr, macPro, snPro, queue, parent=None):
         super(ProThread,self).__init__(parent)
         self.programing = Programing()
@@ -272,16 +320,18 @@ class ProThread(QtCore.QThread):
         self.logQueue = queue
 
     def run(self):
-        if self.proMode == 1:
-            self.programing.signalPro(self.ipAddr, self.macPro, self.snPro, self.logQueue)
+        sucBool= False
+        if self.proMode == 1 or self.proMode == 3:
+            sucBool = self.programing.manualPro(self.ipAddr, self.macPro, self.snPro, self.logQueue)
+            self.signal_to_sucBool.emit(sucBool)                           #连接槽函数on_suc_Bool_change，传递参数sucBool。
         elif self.proMode == 2:
-            pass
-        elif self.proMode == 3:
-            pass
+            pass                # 连续烧写功能， 后续功能添加
         elif self.proMode == 0:
             self.logQueue.put("请选择升级方式...")
-        self.signal.emit(True)
+        self.signal_to_startButton.emit(True)                              #连接槽函数on_pushButton_start_enable，设置开始按钮状态。
 
+
+# textBrowser 打印
 class TBThread(QtCore.QThread):
 
     def __init__(self, queue, textBrowser, parent=None):
@@ -303,13 +353,14 @@ class BurnLog(object):
 
 
 
-
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow()
     ui.show()
+    # print(ui.decCimHex(2031107492413450))
     sys.exit(app.exec_())
-    
+
+
+
 

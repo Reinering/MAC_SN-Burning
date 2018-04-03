@@ -1,0 +1,16 @@
+<sysinfo>
+	<llid0_mac value = "B8:BA:68:0F:00:04"></llid0_mac>
+	<llid1_mac value = "B8:BA:68:00:00:02"></llid1_mac>
+	<llid2_mac value = "B8:BA:68:00:00:03"></llid2_mac>
+	<llid3_mac value = "B8:BA:68:00:00:04"></llid3_mac>
+	<llid4_mac value = "B8:BA:68:00:00:05"></llid4_mac>
+	<llid5_mac value = "B8:BA:68:00:00:06"></llid5_mac>
+	<llid6_mac value = "B8:BA:68:00:00:07"></llid6_mac>
+	<llid7_mac value = "B8:BA:68:00:00:08"></llid7_mac>
+	<auid>
+		<sn value = "0x42 0x4C 0x4B 0x47 0x68 0x0F 0x00 0x04"></sn>
+		<pwd value = "0x20 0x20 0x20 0x20 0x20 0x20 0x20 0x20 0x20 0x20"></pwd>
+	</auid>
+	<gateway_mac value = "B8:BA:68:0F:00:04"></gateway_mac>
+	<product_sn value = "B8BA68-B8BA680F0004"></product_sn>
+</sysinfo>
