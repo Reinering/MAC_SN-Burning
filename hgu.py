@@ -4,8 +4,11 @@
 import paramiko
 import subprocess
 import time
-# from pykeyboard import PyKeyboard
 from scp import SCPClient
+# from pykeyboard import PyKeyboard
+
+
+PRO_STOP_BOOL = False
 
 class SSHOLT(object):
 
@@ -59,7 +62,7 @@ class SSHOLT(object):
 
 class Programing(object):
 
-    def __init__(self, ):
+    def __init__(self):
         self.ssholt = SSHOLT()
         self.usr = "root"
         self.pwd = "nE7jA%5m"
@@ -109,13 +112,16 @@ class Programing(object):
         logQueue = queue
         logQueue.put("正在连接HGU...")
         if not self.getLinkState(ip):
-            try:
-                self.ssholt.authSSH(ip, 22, self.usr, self.pwd)
-                logQueue.put("SSH连接成功，开始烧写。")
-            except Exception as e:
-                print(e)
-                logQueue.put("SSH登录失败")
-                return False
+            while True:
+                try:
+                    self.ssholt.authSSH(ip, 22, self.usr, self.pwd)
+                    logQueue.put("SSH连接成功，开始烧写。")
+                    time.sleep(2)
+                    break
+                except Exception as e:
+                    print(e)
+                    logQueue.put("SSH登录失败")
+                    # return False
 
             logQueue.put("burndata文件开始烧写")
             self.ssholt.exec_cmd("rm -rf /config/work/burndata.config")

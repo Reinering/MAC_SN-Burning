@@ -40,6 +40,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sucBool = False
 
         self.parseConfXML()                             #UI界面数据初始化
+        self.proTh = None
+        self.tbTh = None
 
     def get_xmlData(self, root, tagName):
         itemList = root.getElementsByTagName(tagName)
@@ -139,22 +141,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.macBool = False
         print("新生成macPro",self.macPro)
     def snCal(self):
-
-        sn_StartDec = int(self.hexCimDec(self.lineEdit_SNStart.text()))
-        sn_EndDec = int(self.hexCimDec(self.lineEdit_SNEnd.text()))
-        sn_CurDec = int(self.hexCimDec(self.snPro))
-        sn_Inter = int(self.lineEdit_SNInterval.text())
-        sn_CurDec = sn_CurDec + sn_Inter
-        print("sn_CurDec:", sn_CurDec)
-        if sn_CurDec >= sn_StartDec and sn_CurDec <= sn_EndDec:
-            self.snCurrent = self.decCimHex(sn_CurDec)
-            self.snBool = True
-            self.lineEdit_SNCurrent.setText(self.snCurrent)
-            self.snPro = self.snCurrent
-        else:
-            self.lineEdit_SNCurrent.clear()
-            self.snBool = False
-        print("新生成snPro", self.snPro)
+        snPrefCount = 5                       # 烧写SN 非计算前缀长度
+        if snPrefCount == 0 :
+            sn_StartDec = int(self.hexCimDec(self.lineEdit_SNStart.text()))
+            sn_EndDec = int(self.hexCimDec(self.lineEdit_SNEnd.text()))
+            sn_CurDec = int(self.hexCimDec(self.snPro))
+            sn_Inter = int(self.lineEdit_SNInterval.text())
+            sn_CurDec = sn_CurDec + sn_Inter
+            print("sn_CurDec:", sn_CurDec)
+            if sn_CurDec >= sn_StartDec and sn_CurDec <= sn_EndDec:
+                self.snCurrent = self.decCimHex(sn_CurDec)
+                self.snBool = True
+                self.lineEdit_SNCurrent.setText(self.snCurrent)
+                self.snPro = self.snCurrent
+            else:
+                self.lineEdit_SNCurrent.clear()
+                self.snBool = False
+            print("新生成snPro", self.snPro)
+        elif snPrefCount > 0:
+            snPrefStr = self.lineEdit_SNStart.text()[:snPrefCount]
+            sn_StartDec = int(self.hexCimDec(self.lineEdit_SNStart.text()[snPrefCount:]))
+            sn_EndDec = int(self.hexCimDec(self.lineEdit_SNEnd.text()[snPrefCount:]))
+            sn_CurDec = int(self.hexCimDec(self.snPro[snPrefCount:]))
+            sn_Inter = int(self.lineEdit_SNInterval.text())
+            sn_CurDec = sn_CurDec + sn_Inter
+            print("sn_CurDec:", sn_CurDec)
+            if sn_CurDec >= sn_StartDec and sn_CurDec <= sn_EndDec:
+                self.snCurrent = snPrefStr + self.decCimHex(sn_CurDec)
+                self.lineEdit_SNCurrent.setText(self.snCurrent)
+                self.snPro = self.snCurrent
+                self.snBool = True
+            else:
+                self.lineEdit_SNCurrent.clear()
+                self.snBool = False
+            print("新生成snPro", self.snPro)
     def hexCimDec(self, hexStr):
         # print("hexStr:", hexStr)
         return str(int(hexStr.upper(), 16))
@@ -180,6 +200,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     """                    以下全部为槽函数                             """
 
+    ####手动信号槽###
+    def on_pushButton_start_enable(self, checked):
+        self.pushButton_start.setEnabled(True)
+
+    def on_suc_Bool_change(self, checked):
+        self.sucBool = checked
+        self.createSN_MAC()
+        self.tbTh.stop()
+
+    ###自动生成信号槽###
     @pyqtSlot(str)
     def on_comboBox_proMode_currentTextChanged(self, p0):
         # print(p0)
@@ -192,12 +222,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     @pyqtSlot(bool)
     def on_checkBox_MAC_clicked(self, checked):
-        # print(checked)
         self.lineEdit_macInterval.setEnabled(checked)
-
     @pyqtSlot(bool)
     def on_checkBox_SN_clicked(self, checked):
-        # print(checked)
         self.lineEdit_SNInterval.setEnabled(checked)
 
     @pyqtSlot(bool)
@@ -281,17 +308,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             print("烧写状态获取失败")
 
-    def on_pushButton_start_enable(self, checked):
-        self.pushButton_start.setEnabled(True)
-
-    def on_suc_Bool_change(self, checked):
-        self.sucBool = checked
-        self.createSN_MAC()
-
     @pyqtSlot()
     def on_pushButton_stop_clicked(self):
         self.pushButton_start.setEnabled(True)
-
 
     # 手动模式下，烧写MAC手动修改后，自动将修改后的MAC，赋值到macPro上
     @pyqtSlot(str)
@@ -338,12 +357,16 @@ class TBThread(QtCore.QThread):
         super(TBThread, self).__init__(parent)
         self.logQueue = queue
         self.textBrowser = textBrowser
+        self.tbThreadStop = False
 
     def run(self):
         logStr = ""
-        while  logStr != "finish" and logStr != "interrupt":
+        while  not self.tbThreadStop:
             self.textBrowser.append(logStr)
             logStr = self.logQueue.get()
+
+    def stop(self):
+        self.tbThreadStop = True
 
 class BurnLog(object):
 
