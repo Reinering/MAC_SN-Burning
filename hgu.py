@@ -8,7 +8,6 @@ from scp import SCPClient
 # from pykeyboard import PyKeyboard
 
 
-PRO_STOP_BOOL = False
 
 class SSHOLT(object):
 
@@ -62,17 +61,18 @@ class SSHOLT(object):
 
 class Programing(object):
 
+
     def __init__(self):
         self.ssholt = SSHOLT()
         self.usr = "root"
         self.pwd = "nE7jA%5m"
+        self.PRO_STOP_BOOL = False
 
     def getLinkState(self, ip):
-        ping_True = True
+        ping_True = False
         sTime = time.time()
         # 运行ping程序
-        while ping_True:
-            # runTime = time.time()
+        while not self.PRO_STOP_BOOL:
             if time.time() - sTime > 180:
                 break
             p = subprocess.Popen("ping %s -w 100 -n 1" % (ip),
@@ -101,18 +101,18 @@ class Programing(object):
                 print("丢失 = 1 ")
             elif "字节=32" in out:
                 print("字节=32")
-                ping_True = False
+                ping_True = True
             elif 'bytes=32' in out:
                 print('bytes=32')
-                ping_True = False
+                ping_True = True
         print(ping_True)
         return ping_True
 
     def signalPro(self, ip, mac, sn, queue):
         logQueue = queue
         logQueue.put("正在连接HGU...")
-        if not self.getLinkState(ip):
-            while True:
+        if self.getLinkState(ip):
+            while not self.PRO_STOP_BOOL:
                 try:
                     self.ssholt.authSSH(ip, 22, self.usr, self.pwd)
                     logQueue.put("SSH连接成功，开始烧写。")
@@ -122,50 +122,56 @@ class Programing(object):
                     print(e)
                     logQueue.put("SSH登录失败")
                     # return False
+            if not self.PRO_STOP_BOOL:
+                logQueue.put("burndata文件开始烧写")
+                self.ssholt.exec_cmd("rm -rf /config/work/burndata.config")
+                print("rm -rf burndata.config执行成功")
+                self.makeBurndataFile(mac, sn)
+                logQueue.put("burndata文件生成")
+                self.ssholt.upload("config/burndata.config", "/config/work/burndata.config")
+                logQueue.put("burndata文件烧写完成")
 
-            logQueue.put("burndata文件开始烧写")
-            self.ssholt.exec_cmd("rm -rf /config/work/burndata.config")
-            print("rm -rf burndata.config执行成功")
-            self.makeBurndataFile(mac, sn)
-            logQueue.put("burndata文件生成")
-            self.ssholt.upload("config/burndata.config", "/config/work/burndata.config")
-            logQueue.put("burndata文件烧写完成")
+                logQueue.put("sysinfo文件开始烧写")
+                self.ssholt.exec_cmd("rm -rf /config/work/sysinfo.xml")
+                print("rm -rf /config/work/sysinfo.xml执行成功")
+                self.makeSysinfoFile(mac, sn)
+                logQueue.put("sysinfo文件生成")
+                self.ssholt.upload("config/sysinfo.xml", "/config/work/sysinfo.xml")
+                logQueue.put("sysinfo文件烧写完成")
 
-            logQueue.put("sysinfo文件开始烧写")
-            self.ssholt.exec_cmd("rm -rf /config/work/sysinfo.xml")
-            print("rm -rf /config/work/sysinfo.xml执行成功")
-            self.makeSysinfoFile(mac, sn)
-            logQueue.put("sysinfo文件生成")
-            self.ssholt.upload("config/sysinfo.xml", "/config/work/sysinfo.xml")
-            logQueue.put("sysinfo文件烧写完成")
+                # 需要用回读操作进行确认烧写成功
+                logQueue.put("回读中...")
+                stdin, stdout, stderr = self.ssholt.exec_cmd("cat /config/work/burndata.config")
+                out1 = str(stdout.read(), encoding="utf-8", errors="ignore")
+                if mac not in out1:
+                    logQueue.put("MAC烧写失败，请检查后重新烧写"),
+                    return False
+                if sn not in out1:
+                    logQueue.put("SN烧写失败，请检查后重新烧写"),
+                    return  False
+                logQueue.put("回读完成")
 
-            # 需要用回读操作进行确认烧写成功
-            logQueue.put("回读中...")
-            stdin, stdout, stderr = self.ssholt.exec_cmd("cat /config/work/burndata.config")
-            out1 = str(stdout.read(), encoding="utf-8", errors="ignore")
-            if mac not in out1:
-                logQueue.put("MAC烧写失败，请检查后重新烧写"),
+                logQueue.put("恢复出厂设置")
+                self.ssholt.exec_cmd("rm -rf lastgood.xml")
+                self.ssholt.exec_cmd("rm -rf backup_lastgood.xml")
+
+                logQueue.put("重启设备中...")
+                self.ssholt.exec_cmd("reboot -f")
+                self.ssholt.close()
+                logQueue.put("烧写完成。")
+                logQueue.put("finish")
+
+                self.ssholt.close()
+                return True
+            else:
+                logQueue.put("停止烧写")
                 return False
-            if sn not in out1:
-                logQueue.put("SN烧写失败，请检查后重新烧写"),
-                return  False
-            logQueue.put("回读完成")
-
-            logQueue.put("恢复出厂设置")
-            self.ssholt.exec_cmd("rm -rf lastgood.xml")
-            self.ssholt.exec_cmd("rm -rf backup_lastgood.xml")
-
-            logQueue.put("重启设备中...")
-            self.ssholt.exec_cmd("reboot -f")
-            self.ssholt.close()
-            logQueue.put("烧写完成。")
-            logQueue.put("finish")
-
-            self.ssholt.close()
-            return True
         else:
-            logQueue.append("连接超时...")
-            logQueue.put("finish")
+            if not self.PRO_STOP_BOOL:
+                logQueue.put("连接超时...")
+                logQueue.put("finish")
+            else:
+                logQueue.put("停止烧写")
             return False
 
     def manualPro(self, ip, mac, sn, queue):
@@ -202,6 +208,12 @@ class Programing(object):
 
     def colonDelimited(self,mac):
         return mac[:2] + ":" + mac[2:4] + ":" + mac[4:6] + ":" + mac[6:8] + ":" + mac[8:10] + ":" + mac[10:]
+
+    def stop(self):
+        self.PRO_STOP_BOOL = True
+
+
+
 
 # if __name__ == "__main__":
 #     mac = "B8BA680F0001"

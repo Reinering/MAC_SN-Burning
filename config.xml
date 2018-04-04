@@ -8,14 +8,14 @@
 
 	<macInter>1</macInter>					
 
-	<macCurrent>B8BA680F0001</macCurrent>					
+	<macCurrent>B8BA680F0003</macCurrent>					
 
 	<snStart>6KYZGB8BA680F0000</snStart>						
 
 	<snEnd>6KYZGB8BA680FFFFF</snEnd>						
 
-	<snInter>1</snInter>						
+	<snInter>1</snInter><snPref>5</snPref>						
 
-	<snCurrent>6KYZGB8BA680F0001</snCurrent>						
+	<snCurrent>6KYZGB8BA680F0003</snCurrent>						
 
 </config>
